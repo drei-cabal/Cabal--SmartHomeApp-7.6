@@ -22,6 +22,8 @@ type IoTContextType = {
     devicesError: string | null;
     sensorsError: string | null;
     updatingDeviceId: number | null;
+    sensorsLastUpdated: Date | null;
+    devicesLastUpdated: Date | null;
     toggleDevice: (id: number, value: boolean) => void;
     refreshSensors: () => void;
     retryDevices: () => void;
@@ -52,6 +54,13 @@ export function IoTProvider({
         null
     );
 
+    const [sensorsLastUpdated, setSensorsLastUpdated] = useState<Date | null>(
+        null
+    );
+    const [devicesLastUpdated, setDevicesLastUpdated] = useState<Date | null>(
+        null
+    );
+
     const fetchDevices = async () => {
 
         setDevicesLoading(true);
@@ -62,6 +71,7 @@ export function IoTProvider({
 
             setDevices(data);
             setIsGatewayConnected(true);
+            setDevicesLastUpdated(new Date());
         } catch (error) {
             // A failed device fetch is treated as a gateway
             // disconnection, which also disables the switches.
@@ -81,6 +91,7 @@ export function IoTProvider({
             const data = await getSensorData();
 
             setSensors(data);
+            setSensorsLastUpdated(new Date());
         } catch (error) {
             setSensorsError('Unable to retrieve sensor data.');
         } finally {
@@ -113,6 +124,7 @@ export function IoTProvider({
             setDevices((prev) =>
                 prev.map((d) => (d.id === id ? updated : d))
             );
+            setDevicesLastUpdated(new Date());
         } catch (error) {
             setDevicesError(
                 `Unable to update ${device ? device.name : 'device'}.`
@@ -141,6 +153,8 @@ export function IoTProvider({
                 devicesError,
                 sensorsError,
                 updatingDeviceId,
+                sensorsLastUpdated,
+                devicesLastUpdated,
                 toggleDevice,
                 refreshSensors,
                 retryDevices,

@@ -6,11 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
 import { useIoT } from '../../context/IoTContext';
+import { formatTimeAgo } from '../../utils/formatTime';
 
 export default function SensorsScreen() {
 
@@ -18,11 +20,20 @@ export default function SensorsScreen() {
     sensors,
     sensorsLoading,
     sensorsError,
+    sensorsLastUpdated,
     refreshSensors,
   } = useIoT();
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={sensorsLoading}
+          onRefresh={refreshSensors}
+        />
+      }
+    >
 
       {/* Header */}
       <Text style={styles.title}>
@@ -35,7 +46,10 @@ export default function SensorsScreen() {
 
       {/* Refresh Sensors */}
       <TouchableOpacity
-        style={styles.refreshButton}
+        style={[
+          styles.refreshButton,
+          sensorsLoading && styles.refreshButtonDisabled,
+        ]}
         onPress={refreshSensors}
         disabled={sensorsLoading}
       >
@@ -49,6 +63,12 @@ export default function SensorsScreen() {
           {sensorsLoading ? 'Refreshing Sensors...' : 'Refresh Sensors'}
         </Text>
       </TouchableOpacity>
+
+      {sensorsLastUpdated && (
+        <Text style={styles.lastUpdatedText}>
+          Last updated {formatTimeAgo(sensorsLastUpdated)}
+        </Text>
+      )}
 
       {sensorsError && (
         <View style={styles.bannerCard}>
@@ -190,6 +210,17 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+
+  refreshButtonDisabled: {
+    opacity: 0.6,
+  },
+
+  lastUpdatedText: {
+    fontSize: 12,
+    color: '#888888',
+    marginBottom: 15,
+    textAlign: 'center',
   },
 
   bannerCard: {

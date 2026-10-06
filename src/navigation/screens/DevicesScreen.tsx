@@ -8,11 +8,14 @@ import {
   Switch,
   TouchableOpacity,
   ActivityIndicator,
+  RefreshControl,
+  Alert,
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
 import { useIoT } from '../../context/IoTContext';
+import { formatTimeAgo } from '../../utils/formatTime';
 
 export default function DevicesScreen() {
 
@@ -23,11 +26,48 @@ export default function DevicesScreen() {
     devicesError,
     isGatewayConnected,
     updatingDeviceId,
+    devicesLastUpdated,
     retryDevices,
   } = useIoT();
 
+  // Devices whose type suggests they're security-related (e.g. locks)
+  // get a confirmation prompt before their state actually changes.
+  const isCriticalDevice = (type: string) =>
+    type.toLowerCase().includes('lock');
+
+  const handleToggle = (
+    device: { id: number; name: string; type: string },
+    value: boolean
+  ) => {
+    if (isCriticalDevice(device.type)) {
+      Alert.alert(
+        `Turn ${value ? 'ON' : 'OFF'} ${device.name}?`,
+        `This will ${value ? 'lock' : 'unlock'} the device.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Confirm',
+            style: value ? 'default' : 'destructive',
+            onPress: () => toggleDevice(device.id, value),
+          },
+        ]
+      );
+      return;
+    }
+
+    toggleDevice(device.id, value);
+  };
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={devicesLoading}
+          onRefresh={retryDevices}
+        />
+      }
+    >
 
       <Text style={styles.title}>
         Devices
@@ -36,6 +76,12 @@ export default function DevicesScreen() {
       <Text style={styles.subtitle}>
         Control your connected devices
       </Text>
+
+      {devicesLastUpdated && (
+        <Text style={styles.lastUpdatedText}>
+          Last updated {formatTimeAgo(devicesLastUpdated)}
+        </Text>
+      )}
 
       {!isGatewayConnected && (
         <View style={styles.bannerCard}>
@@ -63,6 +109,15 @@ export default function DevicesScreen() {
           <TouchableOpacity onPress={retryDevices}>
             <Text style={styles.retryText}>Retry</Text>
           </TouchableOpacity>
+        </View>
+      )}
+
+      {!devicesLoading && !devicesError && devices.length === 0 && (
+        <View style={styles.emptyState}>
+          <Ionicons name="hardware-chip-outline" size={36} color="#999999" />
+          <Text style={styles.emptyStateText}>
+            No devices found.
+          </Text>
         </View>
       )}
 
@@ -94,11 +149,34 @@ export default function DevicesScreen() {
                 {device.type}
               </Text>
 
-              <Text style={styles.deviceState}>
-                {updatingDeviceId === device.id
-                  ? 'Updating...'
-                  : device.status ? 'ON' : 'OFF'}
-              </Text>
+              <View style={styles.statusRowInline}>
+                <View
+                  style={[
+                    styles.statusDot,
+                    {
+                      backgroundColor:
+                        updatingDeviceId === device.id
+                          ? '#cccccc'
+                          : device.status
+                          ? '#2e7d32'
+                          : '#9e9e9e',
+                    },
+                  ]}
+                />
+
+                <Text
+                  style={[
+                    styles.deviceState,
+                    updatingDeviceId !== device.id && {
+                      color: device.status ? '#2e7d32' : '#9e9e9e',
+                    },
+                  ]}
+                >
+                  {updatingDeviceId === device.id
+                    ? 'Updating...'
+                    : device.status ? 'ON' : 'OFF'}
+                </Text>
+              </View>
 
             </View>
 
@@ -111,7 +189,7 @@ export default function DevicesScreen() {
               updatingDeviceId === device.id
             }
             onValueChange={(value) => {
-              toggleDevice(device.id, value);
+              handleToggle(device, value);
             }}
           />
 
@@ -215,6 +293,37 @@ const styles = StyleSheet.create({
 
   statusText: {
     fontSize: 13,
+  },
+
+  lastUpdatedText: {
+    fontSize: 12,
+    color: '#888888',
+    marginBottom: 15,
+  },
+
+  statusRowInline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+    gap: 6,
+  },
+
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+    gap: 10,
+  },
+
+  emptyStateText: {
+    fontSize: 14,
+    color: '#999999',
   },
 
 });

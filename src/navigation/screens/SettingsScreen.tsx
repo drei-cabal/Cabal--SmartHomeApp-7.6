@@ -9,11 +9,15 @@ import {
 
 import { Ionicons } from '@expo/vector-icons';
 
+import { useIoT } from '../../context/IoTContext';
+
 export default function SettingsScreen() {
 
   const [notifications, setNotifications] = useState(true);
   const [autoConnect, setAutoConnect] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+
+  const { isGatewayConnected } = useIoT();
 
   return (
     <ScrollView style={styles.container}>
@@ -147,7 +151,7 @@ export default function SettingsScreen() {
         <View style={styles.connectionInfo}>
 
           <Ionicons
-            name="cloud-done-outline"
+            name={isGatewayConnected ? 'cloud-done-outline' : 'cloud-offline-outline'}
             size={30}
           />
 
@@ -157,8 +161,15 @@ export default function SettingsScreen() {
               IoT Gateway
             </Text>
 
-            <Text style={styles.connectionStatus}>
-              Connected
+            <Text
+              style={[
+                styles.connectionStatus,
+                {
+                  color: isGatewayConnected ? '#2e7d32' : '#c62828',
+                },
+              ]}
+            >
+              {isGatewayConnected ? 'Connected' : 'Disconnected'}
             </Text>
 
           </View>
