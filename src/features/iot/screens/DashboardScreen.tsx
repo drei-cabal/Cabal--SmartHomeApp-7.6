@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useIoT } from '../../context/IoTContext';
-import { formatTimeAgo } from '../../utils/formatTime';
+import { useIoT } from '../IoTContext';
+import { formatTimeAgo } from '../../../shared/time/formatTimeAgo';
 
 export default function DashboardScreen() {
   const {

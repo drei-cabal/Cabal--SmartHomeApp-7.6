@@ -5,13 +5,13 @@ import React, {
     useEffect,
 } from 'react';
 
-import { Device, SensorData } from '../models/IoTModels';
+import type { Device, SensorData } from './IoTTypes';
 
 import {
     getDevices,
     getSensorData,
     updateDeviceStatus,
-} from '../services/IoTService';
+} from './simulatedIoTService';
 
 type IoTContextType = {
     devices: Device[];

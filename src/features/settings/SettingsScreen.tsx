@@ -9,7 +9,7 @@ import {
 
 import { Ionicons } from '@expo/vector-icons';
 
-import { useIoT } from '../../context/IoTContext';
+import { useIoT } from '../iot/IoTContext';
 
 export default function SettingsScreen() {
 

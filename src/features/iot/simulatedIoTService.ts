@@ -1,14 +1,33 @@
-import { Device, SensorData, sampleDevices } from '../models/IoTModels';
-
-// Simulated IoT API
-// Mobile App -> IoTService -> Simulated IoT API
+import type { Device, SensorData } from './IoTTypes';
 
 const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
 
 // In-memory store so status changes persist between calls,
 // standing in for a real IoT backend.
-let devices: Device[] = sampleDevices.map((device) => ({ ...device }));
+const devices: Device[] = [
+    {
+        id: 1,
+        name: 'Living Room Light',
+        type: 'Smart Light',
+        icon: 'bulb-outline',
+        status: true,
+    },
+    {
+        id: 2,
+        name: 'Bedroom Fan',
+        type: 'Smart Fan',
+        icon: 'sync-outline',
+        status: false,
+    },
+    {
+        id: 3,
+        name: 'Front Door Lock',
+        type: 'Smart Lock',
+        icon: 'lock-closed-outline',
+        status: true,
+    },
+];
 
 const FAILURE_RATE = 0.15;
 

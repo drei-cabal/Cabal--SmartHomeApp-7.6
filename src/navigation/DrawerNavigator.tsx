@@ -2,10 +2,10 @@ import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 
-import DashboardScreen from './screens/DashboardScreen';
-import SensorsScreen from './screens/SensorsScreen';
-import DevicesScreen from './screens/DevicesScreen';
-import SettingsScreen from './screens/SettingsScreen';
+import DashboardScreen from '../features/iot/screens/DashboardScreen';
+import SensorsScreen from '../features/iot/screens/SensorsScreen';
+import DevicesScreen from '../features/iot/screens/DevicesScreen';
+import SettingsScreen from '../features/settings/SettingsScreen';
 import CustomDrawerContent from './CustomDrawerContent';
 
 const Drawer = createDrawerNavigator();
